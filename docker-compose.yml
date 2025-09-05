@@ -1,0 +1,36 @@
+services:
+  
+  # placehlder
+  app:
+    container_name: dc_app
+    image: alpine
+    command: ["tail", "-f", "/dev/null"]
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    container_name: dc_db
+    environment:
+      - POSTGRES_USER=trabalho
+      - POSTGRES_PASSWORD=trabalho
+      - POSTGRES_DB=trabalho
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./tables.sql:/docker-entrypoint-initdb.d/tables.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trabalho -d trabalho"]
+      interval: 5s
+      timeout: 5s
+      retries: 5 
+    networks:
+      - appnet
+
+volumes:
+  pgdata:
+
+networks:
+  appnet:
+
