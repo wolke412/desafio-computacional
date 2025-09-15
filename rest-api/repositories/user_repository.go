@@ -44,7 +44,7 @@ func (r *UserRepository) Delete(ctx context.Context, id int) error {
 //
 //	Busca e rotrna um usuário pelo ID
 func (r *UserRepository) FindById(ctx context.Context, id int) (*models.User, error) {
-	query := `SELECT * FROM users WHERE id = $1`
+	query := `SELECT * FROM users WHERE id_user = $1`
 
 	var user models.User
 	err := r.DB.QueryRowContext(ctx, query, id).Scan(

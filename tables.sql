@@ -1,9 +1,8 @@
--- 
+ 
 -- ------------------------------------------------------------ 
 --  Criação do usuário e tal...
 -- ------------------------------------------------------------ 
 --
-
 -- CREATE USER trabalho WITH PASSWORD 'trabalho';
 -- 
 -- CREATE DATABASE trabalho
@@ -18,35 +17,41 @@
 -- ------------------------------------------------------------ 
 --
 
-CREATE TABLE bairros (
 
+
+-- ------------------------------------------------------------ 
+-- | Tabela de controle só, valores aqui serão estáticos.
+-- ------------------------------------------------------------ 
+-- | Serve só pra manter o banco normalizado.
+-- ------------------------------------------------------------ 
+CREATE TABLE bairros (
     id_bairro SERIAL PRIMARY KEY,
     bairro_name VARCHAR(100) NOT NULL,
 
     latitude    DECIMAL(10, 2) NOT NULL,
     longitude   DECIMAL(10, 2) NOT NULL
 );
-
-
+-- ------------------------------------------------------------ 
+--
 
 --
 --
 --
 --
 CREATE TABLE users (
-    id_user SERIAL PRIMARY KEY,
-    user_name VARCHAR(100) NOT NULL,
+    id_user         SERIAL      PRIMARY KEY,
+    user_name       VARCHAR(100)        NOT NULL,
 
     email           VARCHAR(80) UNIQUE  NOT NULL,
+
     password_hash   VARCHAR(80)         NOT NULL,
+    cpf             VARCHAR(64) UNIQUE  NOT NULL, -- HASHED
 
-    cpf     VARCHAR(20) UNIQUE NOT NULL,
-
-    id_bairro INT,
+    id_bairro       INT,
     
-    type CHAR(2) NOT NULL,
+    type            CHAR(2)             NOT NULL,
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at      TIMESTAMP           DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT FK_BAIRRO FOREIGN KEY (id_bairro) REFERENCES bairros(id_bairro),
     CONSTRAINT CK_TYPE CHECK  ( type IN ( 'PR', 'CI' ) ) 
@@ -73,7 +78,7 @@ CREATE TABLE posts (
 --
 --
 --
-CREATE TABLE attachments (
+CREATE TABLE post_attachments (
     id_attachment SERIAL PRIMARY KEY,
     id_post INT NOT NULL,
     attachment_name VARCHAR(80) NOT NULL,
@@ -109,7 +114,7 @@ CREATE TABLE post_comments (
     id_post INT NOT NULL,
     id_user INT NOT NULL,
     
-    comment VARCHAR(20) NOT NULL,
+    comment TEXT NOT NULL,
 
     CONSTRAINT FK_POST FOREIGN KEY (id_post) REFERENCES posts(id_post),
     CONSTRAINT FK_USER FOREIGN KEY (id_user) REFERENCES users(id_user)
@@ -119,3 +124,23 @@ CREATE TABLE post_comments (
 
 
 
+
+-- ------------------------------------------------------------
+--  /!\ Required Insertions
+-- ------------------------------------------------------------
+
+INSERT INTO bairros 
+    (bairro_name, latitude, longitude )
+VALUES 
+    ( 'Alvorada', 0.0, 0.0 ),
+    ( 'Centro', 0.0, 0.0 ),
+    ( 'Nova Parobé', 0.0, 0.0 ),
+    ( 'Guarani', 0.0, 0.0 ),
+    ( 'Guarujá', 0.0, 0.0 ),
+    ( 'Santa Cristina do Pinhal', 0.0, 0.0 )
+    ;
+
+
+-- ---- [!] ---------------------------------------------------
+--  |   TEM QUE PREPARAR A INSERÇÃO DA PREFEITURA
+-- ------------------------------------------------------------

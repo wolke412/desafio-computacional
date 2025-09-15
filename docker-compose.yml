@@ -1,12 +1,28 @@
 services:
   
-  # placehlder
   app:
-    container_name: dc_app
-    image: alpine
-    command: ["tail", "-f", "/dev/null"]
+    build: 
+      context: ./rest-api
+      dockerfile: Dockerfile
+    container_name: dc_rest_api
+    command: ["go", "run", "main.go"]
+
+    environment:
+      - APP_AES_KEY_B64=rXWPO2cJO7ubuHKpvAJsNUzqWPAzLFVA7NqbznEZnSg=
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=trabalho
+      - DB_PASSWORD=trabalho
+      - DB_NAME=trabalho
+      - PORT=42069
+    ports:
+      - "8080:42069"
+      
+    networks:
+      - appnet
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:16
