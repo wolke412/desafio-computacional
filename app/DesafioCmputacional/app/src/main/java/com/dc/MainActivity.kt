@@ -17,6 +17,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.dc.components.Drawer
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import org.osmdroid.config.Configuration
 import java.io.File
@@ -56,10 +57,8 @@ class MainActivity : AppCompatActivity() {
 
         if (isNetworkAvailable(this)) {
             Log.d("OsmDroid", "Network is available. Initializing map...")
-            // Proceed with osmdroid configuration and map setup
         } else {
             Log.w("OsmDroid", "Network is NOT available.")
-            // Display a message to the user
             Toast.makeText( this, "No internet connection. Map tiles may not load.", Toast.LENGTH_LONG).show()
         }
 
@@ -74,6 +73,18 @@ class MainActivity : AppCompatActivity() {
         // Optional: Set up the ActionBar for navigation
 //         setupActionBarWithNavController(navController)
         setLogoutButton()
+
+        setModalTest()
+    }
+
+    private fun setModalTest() {
+        val btnTestModal= findViewById<Button>(R.id.btnTestModal)
+
+        btnTestModal.setOnClickListener {
+
+            Drawer().show(supportFragmentManager, "Drawer")
+
+        }
     }
     private fun setLogoutButton() {
         val btnLogout = findViewById<Button>(R.id.btnLogout)
@@ -99,7 +110,7 @@ class MainActivity : AppCompatActivity() {
 
         val isLoggedIn = sharedPreferences.getBoolean("is_user_logged_in", false)
         return isLoggedIn;
-        return true // Placeholder
+        // return true
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
