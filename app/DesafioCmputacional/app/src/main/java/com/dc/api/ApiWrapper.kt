@@ -1,7 +1,6 @@
 package com.dc.api
 
 import android.util.Log
-import com.dc.entities.SerializableList
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*

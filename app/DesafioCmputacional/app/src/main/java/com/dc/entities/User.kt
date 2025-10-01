@@ -10,8 +10,3 @@ data class User(
     val name: String,
     val email: String
 )
-
-@Serializable
-data class SerializableList<out R >(
-    val items: List<R>,
-)

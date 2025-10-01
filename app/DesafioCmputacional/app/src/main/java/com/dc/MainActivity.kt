@@ -102,15 +102,11 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun isUserLoggedIn(): Boolean {
-        // Verifique SharedPreferences, um token salvo, etc.
-        // Retorne true se logado, false caso contrário
-        // Exemplo:
-
         val sharedPreferences = getSharedPreferences("my_app_prefs", Context.MODE_PRIVATE)
 
         val isLoggedIn = sharedPreferences.getBoolean("is_user_logged_in", false)
+
         return isLoggedIn;
-        // return true
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
