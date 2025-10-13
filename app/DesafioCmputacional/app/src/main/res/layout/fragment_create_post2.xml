@@ -1,0 +1,99 @@
+<!-- res/layout/fragment_create_post.xml -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.posts.CreatePostFragment"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        >
+
+        <TextView
+            android:id="@+id/textView_create_post_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create New Post"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginTop="48dp"
+            />
+
+        <EditText
+            android:id="@+id/editText_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Post Title"
+            android:inputType="textCapSentences"
+            android:background="@android:drawable/edit_text"
+            android:padding="12dp" />
+
+        <EditText
+            android:id="@+id/editText_body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="What's on your mind?"
+            android:inputType="textMultiLine|textCapSentences"
+            android:gravity="top"
+            android:minHeight="120dp"
+            android:background="@android:drawable/edit_text"
+            android:padding="12dp" />
+
+
+        <RadioGroup
+            android:id="@+id/radioGroup_tags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" />
+
+
+        <!-- This is a standard Button, so no changes are needed -->
+        <ImageView
+            android:id="@+id/imageView_preview"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/abc_list_selector_background_transition_holo_light"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            tools:src="@tools:sample/backgrounds/scenic"
+            tools:visibility="visible" />
+
+        <Button
+            android:id="@+id/button_take_picture"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Add Picture" />
+
+
+        <org.osmdroid.views.MapView
+            android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="145dp"
+            android:layout_marginTop="16dp" />
+
+        <!-- This is a standard Button, so no changes are needed -->
+        <Button
+            android:id="@+id/button_submit_post"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Submit Post" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="100dp" />
+
+
+    </LinearLayout>
+</ScrollView>

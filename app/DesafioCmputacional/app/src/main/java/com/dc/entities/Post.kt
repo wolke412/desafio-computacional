@@ -1,20 +1,24 @@
 package com.dc.entities
 
-import android.graphics.Bitmap
-import com.dc.coordinates.LatLon
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Post(
-    val id: Int,
+    val id_post: Int,
     val title: String,
-    val body: String,
 
-    val points : List<LatLon>,
+    val body: String = "",
+
+//    val points : List<LatLon>,
+
+    val latitude: Double,
+    val longitude: Double,
 
 
-//    val post_tags : List<PostTag>
     val post_type : PostType,
     val post_tags : List<PostTag> = emptyList(),
 
-    val images_names : List<String> = emptyList(),
-    val images_bytes : List<Bitmap> = emptyList()
+    val post_images : List<String> = emptyList(),
+
+//    val post_tags : List<PostTag>
 )

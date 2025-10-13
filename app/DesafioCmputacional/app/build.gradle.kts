@@ -52,6 +52,9 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:${ktor_version}")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
+    // Coil IMG loader:w
+    implementation("io.coil-kt:coil:2.7.0") // for image loading
+
     // OSMDroid
     implementation("org.osmdroid:osmdroid-android:6.1.6")
     implementation("org.osmdroid:osmdroid-wms:6.1.6")
@@ -72,6 +75,10 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.legacy.support.v4)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.fragment.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

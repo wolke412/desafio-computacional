@@ -22,6 +22,7 @@ func main() {
 	defer db.Close()
 
 	app := fiber.New(fiber.Config{
+
 		// erros não tratados no handler cairão aqui
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			// default 500 status code
@@ -45,14 +46,18 @@ func main() {
 		AllowHeaders:     "Origin, Content-Type, Accept",
 		AllowCredentials: true,
 	}))
+
 	app.Use(logger.New())
+
+	// serve public images
+	app.Static("/uploads/images", "./uploads/images")
 
 	routes.SetupRoutes(app, db.Get())
 
 	// server to run the local client
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "44444"
 	}
 	log.Println("API Rodando em: http://0.0.0.0:" + port)
 

@@ -12,7 +12,7 @@ import (
 // uso pra testar fora do docker
 const (
 	DB_HOST     = "localhost"
-	DB_PORT     = "5433"
+	DB_PORT     = "5432"
 	DB_USER     = "trabalho"
 	DB_PASSWORD = "trabalho"
 	DB_NAME     = "trabalho"

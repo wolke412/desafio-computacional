@@ -40,7 +40,10 @@ func SetupRoutes(app *fiber.App, db *sql.DB) {
 	posts := public.Group("/posts")
 	{
 		posts.Post("/", postHandler.CreatePost)
+		posts.Post("/:post_id/upload-image", postHandler.UploadImageHandler)
 		posts.Get("/", postHandler.GetPosts)
+		posts.Get("/preview", postHandler.GetPostsSimple)
+		posts.Get("/:post_id", postHandler.GetPost)
 		// users.Get("/:userId", userHandler.GetUserById)
 	}
 

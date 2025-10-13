@@ -24,6 +24,7 @@
 -- ------------------------------------------------------------ 
 -- | Serve só pra manter o banco normalizado.
 -- ------------------------------------------------------------ 
+DROP TABLE IF EXISTS bairros CASCADE;
 CREATE TABLE bairros (
     id_bairro SERIAL PRIMARY KEY,
     bairro_name VARCHAR(100) NOT NULL,
@@ -38,6 +39,7 @@ CREATE TABLE bairros (
 --
 --
 --
+DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE users (
     id_user         SERIAL      PRIMARY KEY,
     user_name       VARCHAR(100)        NOT NULL,
@@ -53,7 +55,8 @@ CREATE TABLE users (
 
     created_at      TIMESTAMP           DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT FK_BAIRRO FOREIGN KEY (id_bairro) REFERENCES bairros(id_bairro),
+    CONSTRAINT FK_BAIRRO FOREIGN KEY (id_bairro) REFERENCES bairros(id_bairro)
+         ON DELETE SET NULL,
     CONSTRAINT CK_TYPE CHECK  ( type IN ( 'PR', 'CI' ) ) 
 );
 
@@ -61,6 +64,7 @@ CREATE TABLE users (
 --
 --
 --
+DROP TABLE IF EXISTS posts CASCADE;
 CREATE TABLE posts (
     id_post SERIAL PRIMARY KEY,
     title VARCHAR(60) NOT NULL,
@@ -68,29 +72,49 @@ CREATE TABLE posts (
 
     id_bairro INT, 
     id_user INT NOT NULL,
+    
+    post_type VARCHAR(20) DEFAULT "",
+
+    latitude    DOUBLE PRECISION,
+    longitude   DOUBLE PRECISION,
         
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT FK_BAIRRO FOREIGN KEY (id_bairro) REFERENCES bairros(id_bairro),
+
+    CONSTRAINT FK_BAIRRO FOREIGN KEY (id_bairro) REFERENCES bairros(id_bairro)
+        ON DELETE SET NULL,
     CONSTRAINT FK_USER FOREIGN KEY (id_user) REFERENCES users(id_user)
+        ON DELETE CASCADE
 );
 
 --
 --
 --
 --
+DROP TABLE IF EXISTS post_attachments CASCADE;
 CREATE TABLE post_attachments (
     id_attachment SERIAL PRIMARY KEY,
     id_post INT NOT NULL,
-    attachment_name VARCHAR(80) NOT NULL,
-    path VARCHAR(80) NOT NULL,
-    size_bytes INT NOT NULL,
+
+    attachment_name VARCHAR(80),
+
+    path VARCHAR(200) NOT NULL,
+    type VARCHAR(12) NOT NULL,
+
+    -- size_bytes INT NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT FK_POST FOREIGN KEY (id_post) REFERENCES posts(id_post)
+        ON DELETE CASCADE,
+    CONSTRAINT CK_ATTACHMENT_TYPE CHECK  ( type IN 
+        ( 'PNG', 'JPG', 'PDF' ) 
+    ) 
 );
 
 --
 --
 --
+DROP TABLE IF EXISTS post_interactions CASCADE;
 CREATE TABLE post_interactions (
 
     id_interaction SERIAL PRIMARY KEY,
@@ -100,13 +124,17 @@ CREATE TABLE post_interactions (
 
     interaction VARCHAR(20) NOT NULL,
 
-    CONSTRAINT FK_POST FOREIGN KEY (id_post) REFERENCES posts(id_post),
+    CONSTRAINT FK_POST FOREIGN KEY (id_post) REFERENCES posts(id_post)
+        ON DELETE CASCADE,
     CONSTRAINT FK_USER FOREIGN KEY (id_user) REFERENCES users(id_user)
+        ON DELETE CASCADE,
+    CONSTRAINT CK_INTERACTION_TYPE CHECK  ( interaction IN ( 'UP', 'DOWN' ) ) 
 );
 
 --
 --
 --
+DROP TABLE IF EXISTS post_comments CASCADE;
 CREATE TABLE post_comments (
 
     id_comment SERIAL PRIMARY KEY,
@@ -140,7 +168,3 @@ VALUES
     ( 'Santa Cristina do Pinhal', 0.0, 0.0 )
     ;
 
-
--- ---- [!] ---------------------------------------------------
---  |   TEM QUE PREPARAR A INSERÇÃO DA PREFEITURA
--- ------------------------------------------------------------

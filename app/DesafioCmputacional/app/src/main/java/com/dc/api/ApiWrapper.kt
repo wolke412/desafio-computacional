@@ -1,6 +1,9 @@
 package com.dc.api
 
+import android.graphics.Bitmap
 import android.util.Log
+import com.dc.entities.E_CreatePostBody
+import com.dc.entities.Post
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -14,16 +17,24 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
-import kotlinx.serialization.builtins.ListSerializer
-import java.io.Serializable
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
+import io.ktor.client.statement.HttpResponse
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
+
+import androidx.lifecycle.LifecycleCoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 object ApiWrapper {
 
-    var jwtToken: String? = null  // You can set this later
+    var jwtToken: String? = null
 
     private val client = HttpClient(CIO)
     {
-        // Usado para debugging
+        // usado para debugging
         install(Logging) {
             logger = Logger.DEFAULT
             level = LogLevel.HEADERS
@@ -38,7 +49,54 @@ object ApiWrapper {
         }
     }
 
-    private const val BASE_URL = "http://10.0.2.2:8080/api/v1"
+    public const val HOSTNAME = "http://10.1.1.7:44444"
+//    public const val HOSTNAME = "http://10.0.2.2:44444"
+    private const val BASE_URL = "$HOSTNAME/api/v1"
+
+    /**
+     * A generic function to safely execute API calls from a Fragment or Activity.
+     * It handles launching a coroutine, executing the network request on a background
+     * thread, and delivering the result back on the main thread.
+     *
+     * @param T The type of the expected successful response content.
+     * @param scope The lifecycleScope from the calling Fragment/Activity.
+     * @param apiCall A suspend function that returns an ApiResponse.
+     * @param onSuccess A lambda executed on the main thread with the success data.
+     * @param onError A lambda executed on the main thread with the error data.
+     */
+    fun <T : Any> call(
+        scope: LifecycleCoroutineScope,
+        apiCall: suspend () -> ApiResponse<T>,
+        onSuccess: (data: T) -> Unit,
+        onError: (error: ApiError) -> Unit
+    ) {
+        scope.launch(Dispatchers.IO) {
+            val response = apiCall()
+            withContext(Dispatchers.Main) {
+                when (response) {
+                    is ApiResponse.Success -> onSuccess(response.data)
+                    is ApiResponse.Error -> onError(response.error)
+                }
+            }
+        }
+    }
+
+
+    /**
+     */
+    private suspend inline fun <reified T> getResponse(response: HttpResponse): ApiResponse<T> {
+        return try {
+            if (response.status.isSuccess()) {
+                ApiResponse.Success(response.body())
+            } else {
+                ApiResponse.Error(response.body())
+            }
+        } catch (e: Exception) {
+            Log.e("ApiWrapper", "Error processing response: ${e.message}")
+            ApiResponse.Error(
+                ApiError("Failed to parse response: ${e.message}"))
+        }
+    }
 
     suspend fun createUser(user: User): User {
         return client.post("$BASE_URL/user/create") {
@@ -48,10 +106,72 @@ object ApiWrapper {
         }.body()
     }
 
-    suspend fun findAllUsers(): List<User> {
-        Log.d( "QUERYING ALL USERS: ",  "$BASE_URL/prefeitura/users"  )
-        val a = client.get("$BASE_URL/prefeitura/users")
-        val b = a.body<List<User>>(  )
-        return b
+    /**
+     * The server should create the post and return the new post object, or an error.
+     * @param post The data for the new post.
+     * @return An ApiResponse containing either the created Post or an ApiError.
+     */
+    suspend fun createPost(post: E_CreatePostBody): ApiResponse<Post> {
+        try {
+            val res: HttpResponse = client.post("$BASE_URL/posts") {
+                contentType(ContentType.Application.Json)
+                // jwtToken?.let { header("Authorization", "Bearer $it") }
+                setBody(post)
+            }
+
+            val rawResponse = res.body<String>()
+            Log.d("ApiWrapper", "Raw response from createPost: $rawResponse")
+
+            return getResponse<Post>(res)
+        }
+
+        catch (e: Exception ) {
+            return ApiResponse.Error(ApiError("Failed to create post: ${e.message}"))
+        }
     }
+
+    /**
+     * This sends the image as multipart/form-data.
+     */
+    suspend fun uploadPostImage(postId: Int, image: Bitmap) : ApiResponse<Unit> {
+
+        val stream = ByteArrayOutputStream()
+        image.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+        val byteArray = stream.toByteArray()
+
+        val res = client.post("$BASE_URL/posts/$postId/upload-image") {
+            // jwtToken?.let { header("Authorization", "Bearer $it") }
+            setBody(MultiPartFormDataContent(
+                formData {
+                    append("image", byteArray, Headers.build {
+                        append(HttpHeaders.ContentType, "image/jpeg")
+                        append(HttpHeaders.ContentDisposition, "filename=\"image.jpg\"")
+                    })
+                }
+            ))
+        }
+
+        return getResponse(res)
+    }
+
+    suspend fun fetchPreviewPosts(): ApiResponse<List<Post>> {
+        val res = client.get("$BASE_URL/posts/preview") {
+            contentType(ContentType.Application.Json)
+            // jwtToken?.let { header("Authorization", "Bearer $it") }
+        }
+
+        return getResponse(res)
+    }
+
+    suspend fun getPostById(id: Int): ApiResponse<Post> {
+        val res = client.get("$BASE_URL/posts/$id") {
+            contentType(ContentType.Application.Json)
+            // jwtToken?.let { header("Authorization", "Bearer $it") }
+        }
+
+        return getResponse(res)
+    }
+
+
+
 }

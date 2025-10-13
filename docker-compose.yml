@@ -14,9 +14,9 @@ services:
       - DB_USER=trabalho
       - DB_PASSWORD=trabalho
       - DB_NAME=trabalho
-      - PORT=42069
+      - PORT=44444
     ports:
-      - "8080:42069"
+      - "44444:44444"
       
     networks:
       - appnet

@@ -16,14 +16,14 @@ func NewPostRepository(db *sql.DB) *PostRepository {
 	return &PostRepository{DB: db}
 }
 
-// Cria um usuário
+// Cria um post
 func (r *PostRepository) Create(ctx context.Context, post *models.Post) error {
 	fmt.Printf("\n USER: \n %+v\n", *post)
 	query := `
 		INSERT INTO posts 
-			( title, body, id_bairro, id_user ) 
+			( title, body, post_type, id_user, latitude, longitude ) 
 		VALUES 
-			($1, $2, $3, $4 ) 
+			($1, $2, $3, $4, $5, $6 ) 
 		RETURNING 
 			id_post
 	`
@@ -31,8 +31,11 @@ func (r *PostRepository) Create(ctx context.Context, post *models.Post) error {
 	return r.DB.QueryRowContext(ctx, query, 
 		post.Title,
 		post.Body,
-		post.BairroID,
+		post.Type,
+		// post.BairroID,
 		post.UserID, 
+		post.Lat, 
+		post.Lon, 
 	).Scan(&post.ID)
 
 }
@@ -48,15 +51,17 @@ func (r *PostRepository) Delete(ctx context.Context, id int) error {
 // ------------------------------------------------------------
 //
 func (r *PostRepository) FindById(ctx context.Context, id int) (*models.Post, error) {
-	query := `SELECT * FROM posts WHERE id_post = $1`
+	query := `SELECT id_post, title, body, id_user, post_type, latitude, longitude, created_at FROM posts WHERE id_post = $1`
 
 	var post models.Post
 	err := r.DB.QueryRowContext(ctx, query, id).Scan(
 		&post.ID,
 		&post.Title,
 		&post.Body,
-		&post.BairroID,
 		&post.UserID,
+		&post.Type,
+		&post.Lat,
+		&post.Lon,
 		&post.CreatedAt,
 	)
 	if err != nil {
@@ -69,34 +74,11 @@ func (r *PostRepository) FindById(ctx context.Context, id int) (*models.Post, er
 	return &post, nil
 }
 
-// ------------------------------------------------------------
-//
-
-func (r *PostRepository) FindByEmailAndPassword(ctx context.Context, email string, password string) (*models.Post, error) {
-
-	query := `SELECT * FROM posts WHERE email = $1 AND password = $2`
-
-	var post models.Post
-	err := r.DB.QueryRowContext(ctx, query, email, password).Scan(
-		&post.ID,
-		&post.Title,
-		&post.Body,
-		&post.BairroID,
-		&post.UserID,
-		&post.CreatedAt,
-	)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, errors.New("post does not exist")
-		}
-		return nil, err
-	}
-
-	return &post, nil
-}
-
+// ------
+// 
 func (r *PostRepository) FindAll(ctx context.Context) ([]models.Post, error) {
-	rows, err := r.DB.Query("SELECT * FROM posts")
+	rows, err := r.DB.Query("SELECT id_post, title, body, id_user, post_type, latitude, longitude, created_at FROM posts")
+
 	if err != nil {
 		return nil, err
 	}
@@ -111,8 +93,10 @@ func (r *PostRepository) FindAll(ctx context.Context) ([]models.Post, error) {
 			&u.ID,
 			&u.Title,
 			&u.Body,
-			&u.BairroID,
 			&u.UserID,
+			&u.Type,
+			&u.Lat,
+			&u.Lon,
 			&u.CreatedAt,
 		)
 
@@ -122,4 +106,57 @@ func (r *PostRepository) FindAll(ctx context.Context) ([]models.Post, error) {
 		posts = append(posts, u)
 	}
 	return posts, nil
+}
+
+func (r *PostRepository) GetPostAttachments( ctx context.Context, post_id int ) ([]models.PostAttachment, error) {
+
+	var posts []models.PostAttachment = make([]models.PostAttachment, 0)
+	
+	rows, err  := r.DB.Query("SELECT attachment_name, path, type, created_at FROM post_attachments WHERE id_post = $1", post_id)
+	if err != nil {
+		return posts, err
+	}
+	defer rows.Close()
+
+
+	for rows.Next() {
+		var u models.PostAttachment
+
+		err := rows.Scan(
+			&u.AttachmentName,
+			&u.Path,
+			&u.Type,
+			&u.CreatedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+		posts = append(posts, u)
+	}
+	return posts, nil
+}
+
+// ------------------------------------------------------------
+//
+type PostAttachmentType = string
+const (
+	PNG PostAttachmentType = "PNG"
+	JPG PostAttachmentType = "JPG"
+	PDF PostAttachmentType = "PDF"
+)
+
+func (r *PostRepository) AttachImage(ctx context.Context, id_post int, name string, path string, typ PostAttachmentType ) error {
+
+	query := `
+		INSERT INTO post_attachments
+			( id_post, attachment_name, path, type ) 
+		VALUES 
+			( $1, $2, $3, $4 ) 
+	`
+
+	return r.DB.QueryRowContext(ctx, query, 
+		id_post, name, path, typ,
+	).Scan()
+
 }

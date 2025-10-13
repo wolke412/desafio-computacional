@@ -1,0 +1,22 @@
+adicao do post:
+
+
+titulo;
+descr;
+foto;
+loca;
+tipo:
+    - reclamacao;
+    - falta de luz;
+    - falta d'agua.
+
+----
+
+intercação:
+
+util / neutro / irrelevante
+    
+
+
+
+

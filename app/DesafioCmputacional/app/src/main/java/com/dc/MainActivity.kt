@@ -1,6 +1,7 @@
 package com.dc
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -11,22 +12,17 @@ import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.getSystemService
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
-import com.dc.components.Drawer
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import org.osmdroid.config.Configuration
 import java.io.File
-import java.util.zip.Inflater
+
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -71,21 +67,29 @@ class MainActivity : AppCompatActivity() {
         NavigationUI.setupWithNavController(navView, navController)
 
         // Optional: Set up the ActionBar for navigation
-//         setupActionBarWithNavController(navController)
+        // setupActionBarWithNavController(navController)
         setLogoutButton()
-
+        setCreatePostAction()
         setModalTest()
     }
 
     private fun setModalTest() {
-        val btnTestModal= findViewById<Button>(R.id.btnTestModal)
+//        val btnTestModal= findViewById<Button>(R.id.btnTestModal)
+//
+//        btnTestModal.setOnClickListener {
+//            Drawer().show(supportFragmentManager, "Drawer")
+//        }
+    }
 
-        btnTestModal.setOnClickListener {
+    private fun setCreatePostAction() {
+        val newPost  = findViewById<Button>(R.id.btnNewPost);
 
-            Drawer().show(supportFragmentManager, "Drawer")
-
+        newPost.setOnClickListener {
+                // Navigate to the CreatePostFragment using its ID from the navigation graph
+                navController.navigate(R.id.navigation_create_post)
         }
     }
+
     private fun setLogoutButton() {
         val btnLogout = findViewById<Button>(R.id.btnLogout)
 
