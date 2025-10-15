@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupActionBarWithNavController
+import com.dc.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import org.osmdroid.config.Configuration
 import java.io.File
@@ -66,45 +68,26 @@ class MainActivity : AppCompatActivity() {
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         NavigationUI.setupWithNavController(navView, navController)
 
+
         // Optional: Set up the ActionBar for navigation
-        // setupActionBarWithNavController(navController)
-        setLogoutButton()
+        setupActionBarWithNavController(navController)
+
         setCreatePostAction()
-        setModalTest()
     }
 
-    private fun setModalTest() {
-//        val btnTestModal= findViewById<Button>(R.id.btnTestModal)
-//
-//        btnTestModal.setOnClickListener {
-//            Drawer().show(supportFragmentManager, "Drawer")
-//        }
+    override fun onSupportNavigateUp(): Boolean {
+        // Handle the back button press on the action bar
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
     private fun setCreatePostAction() {
         val newPost  = findViewById<Button>(R.id.btnNewPost);
-
         newPost.setOnClickListener {
-                // Navigate to the CreatePostFragment using its ID from the navigation graph
                 navController.navigate(R.id.navigation_create_post)
         }
     }
 
-    private fun setLogoutButton() {
-        val btnLogout = findViewById<Button>(R.id.btnLogout)
 
-        btnLogout.setOnClickListener {
-                val sharedPreferences = getSharedPreferences("my_app_prefs", Context.MODE_PRIVATE)
-                val editor = sharedPreferences.edit()
-                editor.putBoolean("is_user_logged_in", false)
-                editor.apply()
-                val intent = Intent(this, AuthActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
-                finish()
-        }
-    }
-    
     private fun isUserLoggedIn(): Boolean {
         val sharedPreferences = getSharedPreferences("my_app_prefs", Context.MODE_PRIVATE)
 

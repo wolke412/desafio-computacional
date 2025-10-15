@@ -15,6 +15,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="0dp"
         android:background="@color/black"
+        app:itemTextColor="@color/bottom_nav_tint_selector"
+        app:itemIconTint="@color/bottom_nav_tint_selector"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -33,15 +35,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/nav_internal" />
 
-    <Button
-        android:id="@+id/btnLogout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="304dp"
-        android:layout_marginBottom="8dp"
-        android:text="Logout"
-        app:layout_constraintBottom_toTopOf="@+id/nav_view"
-        app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
         android:id="@+id/btnNewPost"
@@ -49,7 +42,8 @@
         android:layout_height="56dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/rounded_button"
+        android:background="@drawable/rounded_button_primary"
+        android:textColor="@color/white"
         android:text="+"
         app:layout_constraintBottom_toTopOf="@+id/nav_view"
         app:layout_constraintEnd_toEndOf="parent" />

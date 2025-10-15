@@ -9,7 +9,9 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         tools:layout_editor_absoluteX="1dp"
-        tools:layout_editor_absoluteY="1dp">
+        tools:layout_editor_absoluteY="1dp"
+        android:padding="16dp"
+        >
 
         <TextView
             android:id="@+id/textView"
@@ -36,7 +38,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:inputType="textEmailAddress" />
+            android:inputType="textEmailAddress"
+            />
 
         <TextView
             android:id="@+id/editTextText2"
@@ -56,7 +59,7 @@
             android:id="@+id/buttonLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Button" />
+            android:text="Login" />
 
         <Button
             android:id="@+id/btnRegister"

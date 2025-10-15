@@ -146,7 +146,7 @@ open class Drawer : DialogFragment() {
 
         // Start the smooth slide-in animation
         dialog?.window?.decorView?.apply {
-            translationY = (screenHeight * 0.8f)
+            translationY = (screenHeight * 0.9f)
             animate().translationY(0f).setDuration(300).start()
         }
     }

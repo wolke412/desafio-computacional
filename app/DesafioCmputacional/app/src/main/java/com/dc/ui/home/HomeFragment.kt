@@ -58,7 +58,6 @@ class HomeFragment : Fragment() {
                         Log.d("ApiError", "Got posts: " + p.size)
                         setMarkers()
                     }
-
                 } else {
                     Toast.makeText(
                         requireContext(),

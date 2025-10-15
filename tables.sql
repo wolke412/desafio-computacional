@@ -92,22 +92,23 @@ CREATE TABLE posts (
 --
 DROP TABLE IF EXISTS post_attachments CASCADE;
 CREATE TABLE post_attachments (
-    id_attachment SERIAL PRIMARY KEY,
-    id_post INT NOT NULL,
 
-    attachment_name VARCHAR(80),
+    id_attachment           SERIAL PRIMARY KEY,
+    id_post                 INT NOT NULL,
 
-    path VARCHAR(200) NOT NULL,
-    type VARCHAR(12) NOT NULL,
+    attachment_name         VARCHAR(80),
 
-    -- size_bytes INT NOT NULL,
+    path                    VARCHAR(200) NOT NULL,
+    type                    VARCHAR(12) NOT NULL,
 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT FK_POST FOREIGN KEY (id_post) REFERENCES posts(id_post)
+    CONSTRAINT FK_POST FOREIGN KEY (id_post) 
+    REFERENCES posts(id_post)
         ON DELETE CASCADE,
+
     CONSTRAINT CK_ATTACHMENT_TYPE CHECK  ( type IN 
-        ( 'PNG', 'JPG', 'PDF' ) 
+        ( 'PNG', 'JPG', 'PDF' ) -- may increase in the future
     ) 
 );
 

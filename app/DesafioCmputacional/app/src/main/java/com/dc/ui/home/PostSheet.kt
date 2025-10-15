@@ -13,6 +13,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.core.view.setPadding
 import coil.ImageLoader
 import coil.load
 import com.dc.R
@@ -153,31 +154,49 @@ class PostSheet(private var post: Post) : Drawer() {
     private fun createActionButtons() {
         val buttonContainer = LinearLayout(requireContext())
         buttonContainer.orientation = LinearLayout.HORIZONTAL
-        buttonContainer.layoutParams = LinearLayout.LayoutParams(
+        val containerParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
+        containerParams.topMargin = 32
+        buttonContainer.layoutParams = containerParams
 
+        val iconSizeInDp = 16
+        val iconSizeInPixels = (iconSizeInDp * resources.displayMetrics.density).toInt()
+
+        val usefulColor = Color.parseColor("#44BB55")
         val usefulButton = Button(requireContext())
         usefulButton.text = "Achei útil"
-        val usefulDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.circle_arrow_up)
-        usefulDrawable?.setTint(0x44BB55)
-        usefulButton.setCompoundDrawablesWithIntrinsicBounds(usefulDrawable, null, null, null)
-        usefulButton.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        usefulButton.textSize = 10f
+        usefulButton.setTextColor(usefulColor)
+        usefulButton.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_interaction_u)
+        usefulButton.setPadding(32, 0, 32, 0)
 
+        val usefulDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.circle_arrow_up)
+        usefulDrawable?.setBounds(0, 0, iconSizeInPixels, iconSizeInPixels)
+        usefulDrawable?.setTint(usefulColor)
+        usefulButton.setCompoundDrawables(usefulDrawable, null, null, null)
+
+        val usefulParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        usefulParams.marginEnd = 8
+        usefulButton.layoutParams = usefulParams
+
+        val irrelevantColor = Color.parseColor("#FF4455")
         val irrelevantButton = Button(requireContext())
         irrelevantButton.text = "Achei irrelevante"
+        irrelevantButton.textSize = 10f
+        irrelevantButton.setTextColor(irrelevantColor)
+        irrelevantButton.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_interaction_d)
+        irrelevantButton.setPadding(32, 0, 32, 0)
+
         val irrelevantDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.circle_arrow_down)
-        irrelevantDrawable?.setTint( 0xFF4455 )
-        irrelevantButton.setCompoundDrawablesWithIntrinsicBounds(
-            irrelevantDrawable,
-            null,
-            null,
-            null
-        )
+        irrelevantDrawable?.setBounds(0, 0, iconSizeInPixels, iconSizeInPixels)
+        irrelevantDrawable?.setTint(irrelevantColor)
+        irrelevantButton.setCompoundDrawables(irrelevantDrawable, null, null, null)
 
-
-        irrelevantButton.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        val irrelevantParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        irrelevantParams.marginStart = 8
+        irrelevantButton.layoutParams = irrelevantParams
 
         buttonContainer.addView(usefulButton)
         buttonContainer.addView(irrelevantButton)

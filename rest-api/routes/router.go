@@ -20,31 +20,33 @@ func SetupRoutes(app *fiber.App, db *sql.DB) {
 	userHandler := handlers.NewUserHandler(userService)
 	postHandler := handlers.NewPostHandler(postService)
 
-	// group
+	// v1 group
 	api := app.Group("/api/v1")
 
 	public := api.Group("/")
-	// authed := api.Group("/", middleware.JWTProtected())
+	// auth := api.Group("/", middleware.JWTProtected())
+
+	users := public.Group("/users")
+	{
+		users.Post("/", userHandler.CreateUser)
+		users.Post("/login", userHandler.TryLogin)
+	}
+	
+	posts := public.Group("/posts")
+	{
+		posts.Get("/", postHandler.GetPosts)
+		posts.Get("/preview", postHandler.GetPostsSimple)
+		posts.Get("/:post_id", postHandler.GetPost)
+
+		// 
+		posts.Post("/", postHandler.CreatePost)
+		posts.Post("/:post_id/upload-image", postHandler.UploadImageHandler)
+	}
 
 	prefeitura := public.Group("/prefeitura")
 	{
 		prefeitura.Get("/users", userHandler.GetUsers)
 	}
 
-	users := public.Group("/users")
-	{
-		users.Post("/", userHandler.CreateUser)
-		// users.Get("/:userId", userHandler.GetUserById)
-	}
-	
-	posts := public.Group("/posts")
-	{
-		posts.Post("/", postHandler.CreatePost)
-		posts.Post("/:post_id/upload-image", postHandler.UploadImageHandler)
-		posts.Get("/", postHandler.GetPosts)
-		posts.Get("/preview", postHandler.GetPostsSimple)
-		posts.Get("/:post_id", postHandler.GetPost)
-		// users.Get("/:userId", userHandler.GetUserById)
-	}
 
 }

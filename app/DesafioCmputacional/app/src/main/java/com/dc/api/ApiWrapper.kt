@@ -49,7 +49,8 @@ object ApiWrapper {
         }
     }
 
-    public const val HOSTNAME = "http://10.1.1.7:44444"
+    public const val HOSTNAME = "http://192.168.11.115:44444"
+//    public const val HOSTNAME = "http://10.1.1.7:44444"
 //    public const val HOSTNAME = "http://10.0.2.2:44444"
     private const val BASE_URL = "$HOSTNAME/api/v1"
 

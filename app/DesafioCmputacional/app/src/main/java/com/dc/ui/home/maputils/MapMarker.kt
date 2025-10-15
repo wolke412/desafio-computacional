@@ -30,7 +30,7 @@ class MapMarker(
     var osmdroidMarker: Marker? = null
         private set
 
-    private val NO_TEXT_THRESHOLD = 14
+    private val NO_TEXT_THRESHOLD = 15
 
     fun draw(mapView: MapView) {
 
@@ -215,22 +215,31 @@ class MapMarker(
             bgPaint
         )
 
+
+        val shadowSpread = 8f
+        val radius = 8f
         canvas.drawCircle(
             (comb_w/2).toFloat(),
             (comb_h-y_offset/2).toFloat(),
-            10f,
+            radius + shadowSpread,
             Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = Color.BLACK
+                color = 0x60C06000
+                style = Paint.Style.FILL
+            }
+        )
+
+        canvas.drawCircle(
+            (comb_w/2).toFloat(),
+            (comb_h-y_offset/2).toFloat(),
+            radius,
+            Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = 0x7FC06000
                 style = Paint.Style.FILL
             }
         )
         canvas.drawBitmap(iconBitmap, srcRect, destRect, paintb)
-
-
         // apenas se está proximo o suficiente
         if ( zoomLevel >= NO_TEXT_THRESHOLD ) {
-
-
             canvas.drawText(label, padding.toFloat() + iconBitmap.width + gap, (comb_h + bounds.height()) / 2f - y_offset/2, paint)
         }
 

@@ -19,10 +19,9 @@
             android:id="@+id/textView_create_post_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create New Post"
+            android:text="Criar uma nova publicação"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:layout_marginTop="48dp"
             />
 
         <EditText
@@ -30,9 +29,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Post Title"
+            android:hint="Cabeçalho"
+            android:background="@drawable/rounded_input"
+            android:textColor="@color/black"
             android:inputType="textCapSentences"
-            android:background="@android:drawable/edit_text"
             android:padding="12dp" />
 
         <EditText
@@ -40,11 +40,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="What's on your mind?"
-            android:inputType="textMultiLine|textCapSentences"
             android:gravity="top"
+            android:hint="Escreva aqui o corpo da sua reclamação"
+            android:background="@drawable/rounded_input"
+            android:textColor="@color/black"
+            android:inputType="textMultiLine|textCapSentences"
             android:minHeight="120dp"
-            android:background="@android:drawable/edit_text"
             android:padding="12dp" />
 
 
@@ -56,31 +57,46 @@
             android:orientation="vertical" />
 
 
-        <!-- This is a standard Button, so no changes are needed -->
-        <ImageView
-            android:id="@+id/imageView_preview"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/abc_list_selector_background_transition_holo_light"
-            android:scaleType="centerCrop"
-            android:visibility="gone"
-            tools:src="@tools:sample/backgrounds/scenic"
-            tools:visibility="visible" />
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/button_take_picture"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Add Picture" />
+            <ImageView
+                android:id="@+id/imageView_preview"
+                android:layout_width="199dp"
+                android:layout_height="187dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/abc_list_selector_background_transition_holo_light"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                tools:src="@tools:sample/backgrounds/scenic"
+                tools:visibility="visible" />
 
+            <Button
+                android:id="@+id/button_take_picture"
+                android:layout_width="144dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/rounded_button_primary"
+                android:layout_marginLeft="16dp"
+                android:text="Adiiconar foto" />
 
-        <org.osmdroid.views.MapView
-            android:id="@+id/map"
+        </LinearLayout>
+
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="145dp"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="16dp">
+            <org.osmdroid.views.MapView
+                android:id="@+id/map"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+            <View
+                android:id="@+id/map_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </FrameLayout>
 
         <!-- This is a standard Button, so no changes are needed -->
         <Button
@@ -88,6 +104,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_button_primary"
             android:text="Submit Post" />
 
         <Space

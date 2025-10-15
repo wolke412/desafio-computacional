@@ -106,7 +106,7 @@ class CreatePostFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Hide the action bar for this fragment
-        (activity as? AppCompatActivity)?.supportActionBar?.hide()
+        // (activity as? AppCompatActivity)?.supportActionBar?.hide()
 
         // Initialize views
         imageViewPreview = view.findViewById(R.id.imageView_preview)
@@ -303,6 +303,7 @@ class CreatePostFragment : Fragment() {
                     selectedLocation = userLocation
                     mapView.controller.setCenter(userLocation)
                     addMarker(userLocation)
+
                     // We only need the first location fix to center the map
                     myLocationProvider.stopLocationProvider()
                     Toast.makeText(requireContext(), "Tap on the map to change the location", Toast.LENGTH_SHORT).show()
@@ -328,8 +329,9 @@ class CreatePostFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+
         // Show the action bar again when the fragment is destroyed
-        (activity as? AppCompatActivity)?.supportActionBar?.show()
+        // (activity as? AppCompatActivity)?.supportActionBar?.show()
     }
 }
 
