@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"mime"
 	"mime/multipart"
 	"os"
@@ -35,6 +36,10 @@ func (s *PostService) GetAllPosts(ctx context.Context) ([]models.Post, error) {
 
 func (s *PostService) GetPostById(ctx context.Context, post_id int) (*models.Post, error) {
 	return s.PostRepo.FindById(ctx, post_id)
+}
+
+func (s *PostService) GetPostInteractions(ctx context.Context, post_id int) (*repositories.InteractionCount, error) {
+	return s.PostRepo.FindPostInteractions(ctx, post_id)
 }
 
 func (s *PostService) Create(ctx context.Context, post *models.Post) error {
@@ -69,6 +74,30 @@ func (s *PostService) AttachFile(ctx context.Context, post_id int, f *multipart.
 	s.PostRepo.AttachImage(ctx, post_id, filename, "/uploads/images/"+filename, repositories.JPG)
 
 	return err
+}
+
+func (s *PostService) PlaceInteraction(ctx context.Context, inter *models.PostInteraction) error {
+	
+	_, err := s.PostRepo.GetUserInteractinoOnPost(ctx, inter.PostID, inter.UserID)
+	if err == nil {
+		err := s.PostRepo.DeleteUserPostInteraction(ctx, inter)
+		if err != nil {
+			slog.Error("FAILED ON DELETE")
+			return err
+		}
+	}
+
+	err = s.PostRepo.PostInteraction(ctx, inter) 
+	
+	if err != nil {
+		slog.Error("FAILED ON POSTING INTERACTION")
+	}
+
+	return err
+}
+
+func (s *PostService) GetUserInteractionOnPost(ctx context.Context, userId int, postId int ) (*models.PostInteraction, error) {
+	return s.PostRepo.GetUserInteractinoOnPost(ctx, postId, userId)
 }
 
 

@@ -1,6 +1,8 @@
 package entities
 
-import "time"
+import (
+	"time"
+)
 
 type E_Post struct {
 
@@ -16,6 +18,9 @@ type E_Post struct {
 	Lon float64 `json:"longitude"`
 
 	Images []string `json:"post_images,omitempty"`
+
+	UpvoteCount 	 	int							`json:"upvote_count,omitempty"`
+	DownvoteCount 	 	int							`json:"downvote_count,omitempty"`
 	
 	CreatedAt  time.Time `json:"created_at"`
 }

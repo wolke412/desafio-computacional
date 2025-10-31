@@ -1,7 +1,6 @@
 package com.dc
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -16,7 +15,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
-import com.dc.databinding.ActivityMainBinding
+import com.dc.utils.SessionManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import org.osmdroid.config.Configuration
 import java.io.File
@@ -28,7 +27,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (!isUserLoggedIn()) {
+        if (!SessionManager.getInstance(this).isLoggedIn()) {
             startActivity(Intent(this, AuthActivity::class.java))
             finish()
             return
@@ -69,14 +68,13 @@ class MainActivity : AppCompatActivity() {
         NavigationUI.setupWithNavController(navView, navController)
 
 
-        // Optional: Set up the ActionBar for navigation
         setupActionBarWithNavController(navController)
 
         setCreatePostAction()
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        // Handle the back button press on the action bar
+        // back button press on the action bar
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
@@ -87,30 +85,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun isUserLoggedIn(): Boolean {
-        val sharedPreferences = getSharedPreferences("my_app_prefs", Context.MODE_PRIVATE)
-
-        val isLoggedIn = sharedPreferences.getBoolean("is_user_logged_in", false)
-
-        return isLoggedIn;
-    }
-
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            1 -> { // Your permission request code
+            1 -> {
                 if (grantResults.isNotEmpty() &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED && // WRITE_EXTERNAL_STORAGE
                     grantResults[1] == PackageManager.PERMISSION_GRANTED    // READ_EXTERNAL_STORAGE
                 ) {
                     Log.d("Permissions", "Storage permissions granted")
-                    // Permissions granted - Now it's safer to initialize osmdroid
-                    // You might need to trigger a re-initialization of the map
-                    // or ensure HomeFragment is loaded/reloaded after this.
                 } else {
                     Log.e("Permissions", "Storage permissions denied")
-                    // Permissions denied - Inform user, disable map functionality, etc.
                     Toast.makeText(this, "Storage permission is required for map functionality.", Toast.LENGTH_LONG).show()
                 }
                 return

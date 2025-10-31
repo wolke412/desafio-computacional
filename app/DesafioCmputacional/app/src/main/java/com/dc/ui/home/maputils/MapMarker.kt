@@ -53,6 +53,7 @@ class MapMarker(
             val l = post.body.length
             newOsmdroidMarker.subDescription = post.body.substring(0, minOf(l, 50))
 
+
             newOsmdroidMarker.setOnMarkerClickListener { clickedMarker, mapView ->
                 this.triggerClick()
                 true

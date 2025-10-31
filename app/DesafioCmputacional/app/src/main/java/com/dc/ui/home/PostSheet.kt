@@ -12,6 +12,7 @@ import coil.imageLoader
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.res.integerResource
 import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
 import coil.ImageLoader
@@ -22,9 +23,11 @@ import com.dc.api.ApiWrapper
 import com.dc.components.Drawer
 import com.dc.entities.Post
 import com.dc.coordinates.LatLon
+import com.dc.entities.PostInteraction
+import com.dc.entities.PostInteractionType
 import okhttp3.OkHttpClient
 
-class PostSheet(private var post: Post) : Drawer() {
+class PostSheet(private var post: Post, private var interaction: PostInteraction) : Drawer() {
     private lateinit var titleView: TextView
     private lateinit var descriptionView: TextView
     private lateinit var imageContainer: LinearLayout
@@ -166,10 +169,17 @@ class PostSheet(private var post: Post) : Drawer() {
 
         val usefulColor = Color.parseColor("#44BB55")
         val usefulButton = Button(requireContext())
-        usefulButton.text = "Achei útil"
+
+        usefulButton.text = "Achei útil (${post.upvote_count})"
         usefulButton.textSize = 10f
         usefulButton.setTextColor(usefulColor)
+
+
+        if ( interaction.getInteractionType() == PostInteractionType.UPVOTE) {
+            usefulButton.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_interaction_u_s)
+        }
         usefulButton.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_interaction_u)
+
         usefulButton.setPadding(32, 0, 32, 0)
 
         val usefulDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.circle_arrow_up)
@@ -183,10 +193,15 @@ class PostSheet(private var post: Post) : Drawer() {
 
         val irrelevantColor = Color.parseColor("#FF4455")
         val irrelevantButton = Button(requireContext())
-        irrelevantButton.text = "Achei irrelevante"
+        irrelevantButton.text = "Achei irrelevante (${post.downvote_count})"
         irrelevantButton.textSize = 10f
         irrelevantButton.setTextColor(irrelevantColor)
+
+        if (interaction.getInteractionType() == PostInteractionType.DOWNVOTE) {
+            usefulButton.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_interaction_d_s)
+        }
         irrelevantButton.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_interaction_d)
+
         irrelevantButton.setPadding(32, 0, 32, 0)
 
         val irrelevantDrawable = ContextCompat.getDrawable(requireContext(), R.drawable.circle_arrow_down)

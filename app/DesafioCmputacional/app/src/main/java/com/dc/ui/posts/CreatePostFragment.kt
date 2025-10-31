@@ -33,6 +33,7 @@ import com.dc.api.isSuccess
 import com.dc.entities.E_CreatePost
 import com.dc.entities.PostType
 import com.dc.entities.toCreatePostBody
+import com.dc.utils.SessionManager
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
@@ -228,10 +229,13 @@ class CreatePostFragment : Fragment() {
             return null
         }
 
-
         // sets test user
-        // @TODO: FIND REAL USER FROM SESSION
-        val userId = 2
+        val userId = SessionManager.getInstance(requireContext()).getUserId()
+
+        if (userId == -1) {
+            Toast.makeText(requireContext(), "Invalid session", Toast.LENGTH_SHORT).show()
+            return null
+        }
 
         return E_CreatePost(
             userId = userId,

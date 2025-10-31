@@ -27,3 +27,18 @@ type PostAttachment struct  {
 	
 	CreatedAt  time.Time `json:"created_at"`
 }
+
+
+type PostInteractionType = string
+const (
+	PostIteractionUpvote 	= "UP"
+	PostIteractionDownvote 	= "DOWN"
+)
+
+type PostInteraction struct  {
+	ID         	int64  					`json:"id_interaction"`
+	UserID 		int 					`json:"id_user"`
+	PostID 		int 					`json:"id_post"`
+	Type 		PostInteractionType 	`json:"interaction"`
+	CreatedAt  	time.Time 				`json:"created_at"`
+}

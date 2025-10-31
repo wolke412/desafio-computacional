@@ -24,6 +24,8 @@ import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 
 import androidx.lifecycle.LifecycleCoroutineScope
+import com.dc.entities.PostInteraction
+import com.dc.entities.PostInteractionType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,9 +51,9 @@ object ApiWrapper {
         }
     }
 
-    public const val HOSTNAME = "http://192.168.11.115:44444"
+//    public const val HOSTNAME = "http://192.168.11.115:44444"
 //    public const val HOSTNAME = "http://10.1.1.7:44444"
-//    public const val HOSTNAME = "http://10.0.2.2:44444"
+    public const val HOSTNAME = "http://10.0.2.2:44444"
     private const val BASE_URL = "$HOSTNAME/api/v1"
 
     /**
@@ -150,6 +152,38 @@ object ApiWrapper {
                     })
                 }
             ))
+        }
+
+        return getResponse(res)
+    }
+
+    /**
+     *  register a user interaction
+     * @param postId The ID of the post to interact with.
+     * @param interaction A string representing the interaction (e.g., "like").
+     * @return An ApiResponse indicating success or failure.
+     */
+    suspend fun postInteraction(postId: Int, userId: Int, interaction: PostInteractionType): ApiResponse<Unit> {
+        val res = client.post("$BASE_URL/posts/$postId/interact") {
+            contentType(ContentType.Application.Json)
+            // jwtToken?.let { header("Authorization", "Bearer $it") }
+            setBody(mapOf("interaction" to interaction, "id_user" to userId))
+        }
+
+        return getResponse(res)
+    }
+
+    /**
+     *  fetches a user interaction
+     * @param postId The ID of the post to interact with.
+     * @param userId The ID of the user.
+     * @return An ApiResponse indicating success or failure.
+     */
+    suspend fun fetchPostInteraction(postId: Int, userId: Int): ApiResponse<PostInteraction> {
+        val res = client.get("$BASE_URL/posts/$postId/interaction") {
+            contentType(ContentType.Application.Json)
+            // jwtToken?.let { header("Authorization", "Bearer $it") }
+            setBody(mapOf("id_user" to userId))
         }
 
         return getResponse(res)

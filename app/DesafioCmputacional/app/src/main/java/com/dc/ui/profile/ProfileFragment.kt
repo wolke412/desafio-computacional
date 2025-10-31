@@ -9,14 +9,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import com.dc.AuthActivity
 import com.dc.R
+import com.dc.utils.SessionManager
 
 class ProfileFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = ProfileFragment()
-    }
 
     private val viewModel: ProfileViewModel by viewModels()
 
@@ -36,16 +34,20 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setLogoutButton(view)
+        setDataVisualization(view)
     }
+    private fun setDataVisualization(view: View) {
+        val emailContent = view.findViewById<TextView>(R.id.emailContent)
+        emailContent.text = SessionManager.getInstance(requireContext()).getUserEmail()
 
+    }
     private fun setLogoutButton(view: View) {
         val btnLogout = view.findViewById<Button>(R.id.logout_button)
 
         btnLogout.setOnClickListener {
-            val sharedPreferences = requireActivity().getSharedPreferences("my_app_prefs", Context.MODE_PRIVATE)
-            val editor = sharedPreferences.edit()
-            editor.putBoolean("is_user_logged_in", false)
-            editor.apply()
+
+            SessionManager.getInstance(requireContext()).logoutUser()
+
             val intent = Intent(requireContext(), AuthActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)

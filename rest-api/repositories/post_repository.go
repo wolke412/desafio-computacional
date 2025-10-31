@@ -160,3 +160,94 @@ func (r *PostRepository) AttachImage(ctx context.Context, id_post int, name stri
 	).Scan()
 
 }
+
+// ------------------------------------------------------------
+//
+type InteractionCount struct  {
+	Up 		int
+	Down 	int
+}
+
+func (r *PostRepository) FindPostInteractions(ctx context.Context, postId int) (*InteractionCount, error) {
+	
+	query := `
+		SELECT 
+			COUNT( CASE WHEN interaction = 'UP' 	THEN 1 END	) UP,
+			COUNT( CASE WHEN interaction = 'DOWN'	THEN 1 END	) DOWN
+		FROM post_interactions
+		WHERE id_post = $1
+		GROUP BY interaction
+	`
+	
+	var ic InteractionCount
+	err := r.DB.QueryRowContext(ctx, query, postId).Scan(
+		&ic.Up,
+		&ic.Down,
+	)
+
+	// se n voltar linhas azar, deixa ser o 0 por padrão
+	if err == sql.ErrNoRows {
+		return &ic, nil
+	}
+	
+	return &ic, err
+}
+func (r *PostRepository) PostInteraction(ctx context.Context, post *models.PostInteraction) error {
+	
+	query := `
+		INSERT INTO post_interactions
+			( id_post, id_user, interaction ) 
+		VALUES 
+			( $1, $2, $3 ) 
+		RETURNING id_interaction
+	`
+
+	return r.DB.QueryRowContext(ctx, query, 
+		post.PostID, post.UserID, post.Type,
+	).Scan(&post.ID)
+
+}
+
+	
+func (r *PostRepository) DeleteUserPostInteraction(ctx context.Context, post *models.PostInteraction) error {
+	query := `
+		DELETE FROM post_interactions
+		WHERE id_user = $1 AND id_post = $2
+	`
+
+	_, err := r.DB.ExecContext(ctx, query, 
+		post.UserID, post.PostID,
+	)
+	
+	return err 
+}
+
+func (r *PostRepository) GetUserInteractinoOnPost(ctx context.Context, postId int, userId int ) (*models.PostInteraction, error) {
+	query := `
+		SELECT id_interaction, id_user, id_post, interaction 
+		FROM post_interactions
+		WHERE id_user = $1 AND id_post = $2
+	`
+	
+	var p models.PostInteraction
+
+	err := r.DB.QueryRowContext(ctx, query, 
+		userId, postId,
+	).Scan(
+		&p.ID,
+		&p.UserID,
+		&p.PostID,
+		&p.Type,
+	)
+
+	if err == sql.ErrNoRows {
+		p.Type = ""
+
+		return &p, nil
+	}
+
+	
+	return &p, err
+}
+
+

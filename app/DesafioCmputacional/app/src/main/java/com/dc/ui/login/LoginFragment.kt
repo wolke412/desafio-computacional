@@ -14,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import com.dc.AuthActivity
 import com.dc.MainActivity
 import com.dc.R
+import com.dc.utils.SessionManager
 
 class LoginFragment: Fragment() {
 
@@ -37,15 +38,10 @@ class LoginFragment: Fragment() {
                 "EMAIL: ${inpEmail.text} SENHA: ${inpPassword.text}",
                 Toast.LENGTH_SHORT).show()
 
-            val sharedPreferences = requireContext().getSharedPreferences(
-                "my_app_prefs",
-                Context.MODE_PRIVATE
+            // --
+            SessionManager.getInstance(requireContext()).createLoginSession(
+                1, "mateus@testes.com"
             )
-            val editor = sharedPreferences.edit()
-
-            // "is_user_logged_in" is the unique key (name) for this boolean.
-            editor.putBoolean("is_user_logged_in", true)
-            editor.apply()
 
             sendUserToMain()
         }

@@ -20,9 +20,12 @@ import com.dc.api.isSuccess
 import com.dc.coordinates.LatLon
 import com.dc.coordinates.ParobePerimetro
 import com.dc.entities.Post
+import com.dc.entities.PostInteraction
 import com.dc.ui.home.maputils.MapMarker
+import com.dc.utils.SessionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -78,7 +81,7 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        fetchPosts()
+         fetchPosts()
 
         val root = inflater.inflate(R.layout.fragment_home, container, false)
 
@@ -88,8 +91,6 @@ class HomeFragment : Fragment() {
             textView.text = it
         }
 
-//        Log.d("OsmDroidConfig", "Base Path: ${Configuration.getInstance().osmdroidBasePath}")
-//        Log.d("OsmDroidConfig", "Tile Cache Path: ${Configuration.getInstance().osmdroidTileCache}")
 
         mapView = root.findViewById(R.id.mapViewSimpleLoc)
 
@@ -98,6 +99,9 @@ class HomeFragment : Fragment() {
         drawPerimeter(ParobePerimetro.coordinates, Color.RED )
 
         mapView!!.invalidate()
+
+//        Log.d("OsmDroidConfig", "Base Path: ${Configuration.getInstance().osmdroidBasePath}")
+//        Log.d("OsmDroidConfig", "Tile Cache Path: ${Configuration.getInstance().osmdroidTileCache}")
 
         return root
     }
@@ -121,26 +125,47 @@ class HomeFragment : Fragment() {
 
     private fun placeMarker(post: Post): MapMarker {
 
+        val user_id = SessionManager.getInstance(requireContext()).getUserId()
+
         val m = MapMarker(
             post=post,
             onClick = { m ->
                 lifecycleScope.launch(Dispatchers.IO) {
-                    val response = ApiWrapper.getPostById(m.post.id_post)
+                    val postResponseDeferred = async { ApiWrapper.getPostById(m.post.id_post) }
+                    val interactionResponseDeferred = async { ApiWrapper.fetchPostInteraction(m.post.id_post, user_id) }
+
+                    val postResponse = postResponseDeferred.await()
+                    val interactionResponse = interactionResponseDeferred.await()
+
                     withContext(Dispatchers.Main) {
-                        if(response.isSuccess) {
-                            response.getContent()?.let { post ->
-                                Log.d("ApiSuccess", "Got post: " + post.title)
-                                val postSheet = PostSheet(post)
+                        if(postResponse.isSuccess && interactionResponse.isSuccess) {
+                            val fullPost = postResponse.getContent()
+                            val interaction = interactionResponse.getContent()
+
+                            if (fullPost != null && interaction != null) {
+                                Log.d("ApiSuccess", "Got post: " + fullPost.title +
+                                         " with down votes: " + fullPost.downvote_count +
+                                        " and up votes: " + fullPost.upvote_count
+                                )
+                                Log.d("ApiSuccess", "Got post interaction")
+                                val postSheet = PostSheet(fullPost, interaction)
                                 postSheet.show(childFragmentManager, "PostSheet")
+                            } else {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Falha ao carregar dados do post.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                Log.e("ApiError", "Post or interaction content is null")
                             }
                         } else {
-                            Toast.makeText(
-                                requireContext(),
-                                "Falha ao carregar post: " + response.getError()?.error,
-                                Toast.LENGTH_LONG
-                            ).show()
+                            val postError = postResponse.getError()?.error ?: "unknown"
+                            val interactionError = interactionResponse.getError()?.error ?: "unknown"
+                            val error = " P: ${postError} I: ${interactionError}"
 
-                            Log.e("ApiError", response.getError()?.error ?: " unknown")
+                            Toast.makeText(requireContext(), "Falha ao carregar post: " + error, Toast.LENGTH_LONG).show()
+
+                            Log.e("ApiError", error )
                         }
                     }
                 }
