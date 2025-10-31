@@ -163,11 +163,17 @@ object ApiWrapper {
      * @param interaction A string representing the interaction (e.g., "like").
      * @return An ApiResponse indicating success or failure.
      */
-    suspend fun postInteraction(postId: Int, userId: Int, interaction: PostInteractionType): ApiResponse<Unit> {
-        val res = client.post("$BASE_URL/posts/$postId/interact") {
+    suspend fun postInteraction(postId: Int, userId: Int, interaction: String): ApiResponse<PostInteraction> {
+        val res = client.post("$BASE_URL/posts/$postId/interaction") {
             contentType(ContentType.Application.Json)
             // jwtToken?.let { header("Authorization", "Bearer $it") }
-            setBody(mapOf("interaction" to interaction, "id_user" to userId))
+            setBody(
+                PostInteraction(
+                    postId,
+                    userId,
+                    interaction
+                )
+            )
         }
 
         return getResponse(res)

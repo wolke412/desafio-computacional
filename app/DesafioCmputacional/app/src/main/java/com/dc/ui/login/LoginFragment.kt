@@ -40,7 +40,7 @@ class LoginFragment: Fragment() {
 
             // --
             SessionManager.getInstance(requireContext()).createLoginSession(
-                1, "mateus@testes.com"
+                2, "mateus@testes.com"
             )
 
             sendUserToMain()

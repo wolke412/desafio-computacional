@@ -26,6 +26,9 @@ import com.dc.coordinates.LatLon
 import com.dc.entities.PostInteraction
 import com.dc.entities.PostInteractionType
 import okhttp3.OkHttpClient
+import kotlinx.coroutines.launch
+import androidx.lifecycle.lifecycleScope
+import com.dc.api.isSuccess
 
 class PostSheet(private var post: Post, private var interaction: PostInteraction) : Drawer() {
     private lateinit var titleView: TextView
@@ -174,11 +177,13 @@ class PostSheet(private var post: Post, private var interaction: PostInteraction
         usefulButton.textSize = 10f
         usefulButton.setTextColor(usefulColor)
 
-
         if ( interaction.getInteractionType() == PostInteractionType.UPVOTE) {
             usefulButton.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_interaction_u_s)
+            usefulButton.setTextColor(Color.WHITE)
         }
-        usefulButton.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_interaction_u)
+        else {
+            usefulButton.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_interaction_u)
+        }
 
         usefulButton.setPadding(32, 0, 32, 0)
 
@@ -198,9 +203,12 @@ class PostSheet(private var post: Post, private var interaction: PostInteraction
         irrelevantButton.setTextColor(irrelevantColor)
 
         if (interaction.getInteractionType() == PostInteractionType.DOWNVOTE) {
-            usefulButton.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_interaction_d_s)
+            irrelevantButton.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_interaction_d_s)
+            irrelevantButton.setTextColor(Color.WHITE)
         }
-        irrelevantButton.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_interaction_d)
+        else {
+            irrelevantButton.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_interaction_d)
+        }
 
         irrelevantButton.setPadding(32, 0, 32, 0)
 
@@ -213,10 +221,67 @@ class PostSheet(private var post: Post, private var interaction: PostInteraction
         irrelevantParams.marginStart = 8
         irrelevantButton.layoutParams = irrelevantParams
 
+        // add functionality to the buttons
+        setupButtonListeners(usefulButton, "UP", irrelevantButton)
+        setupButtonListeners(irrelevantButton, "DOWN", usefulButton)
+
+
         buttonContainer.addView(usefulButton)
         buttonContainer.addView(irrelevantButton)
 
         mainLayout.addView(buttonContainer)
+    }
+    private fun setupButtonListeners(
+        button: Button,
+        interactionType: String,
+        otherButton: Button
+    ) {
+        button.setOnClickListener {
+            // Prevent multiple clicks while the request is in progress
+            button.isEnabled = false
+            otherButton.isEnabled = false
+
+            Log.d("Button Cliked: ", "interacion=" + interactionType)
+
+
+            // Create the interaction object to send to the API
+            val newInteraction = PostInteraction(
+                id_post = post.id_post,
+                id_user = 2,
+                interaction = interactionType,
+            )
+
+            lifecycleScope.launch {
+                try {
+                    if ( newInteraction.interaction == null ) {
+                        Log.e("PostSheet", "Interaction type is null")
+                        return@launch
+                    }
+
+                    val response = ApiWrapper.postInteraction(
+                        interaction.id_post,
+                        2,
+                        newInteraction.interaction
+                    )
+
+                    if (response.isSuccess) {
+                        Log.d("PostSheet", "Interaction registered: $interactionType")
+                        // Optionally, you could update the UI or dismiss the sheet
+                        dismiss()
+                    } else {
+                        Log.e("PostSheet", "Failed to register interaction:")
+                        // You could show an error message to the user here
+                    }
+                } catch (e: Exception) {
+                    Log.e("PostSheet", "Exception during interaction registration", e)
+                    // Handle exceptions, e.g., network errors
+                } finally {
+                    // Re-enable buttons after the request is complete, regardless of success or failure
+                    button.isEnabled = true
+                    otherButton.isEnabled = true
+                }
+            }
+        }
     }
 
 }
