@@ -23,7 +23,7 @@ func main() {
 
 	app := fiber.New(fiber.Config{
 
-		StrictRouting: true,
+		// StrictRouting: true,
 
 		// erros não tratados no handler cairão aqui
 		ErrorHandler: func(c *fiber.Ctx, err error) error {

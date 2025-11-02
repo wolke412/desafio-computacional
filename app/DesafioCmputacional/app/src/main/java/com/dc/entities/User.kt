@@ -6,7 +6,7 @@ import kotlinx.serialization.decodeFromString
 
 @Serializable
 data class User(
-    val id: String? = null, // server may return an ID
+    val id: Int,
     val name: String,
     val email: String
 )

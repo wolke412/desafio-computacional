@@ -1,8 +1,10 @@
 package com.dc.ui.login
 
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +12,13 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.dc.AuthActivity
 import com.dc.MainActivity
 import com.dc.R
+import com.dc.api.ApiWrapper
+import com.dc.entities.User
 import com.dc.utils.SessionManager
 
 class LoginFragment: Fragment() {
@@ -34,17 +39,39 @@ class LoginFragment: Fragment() {
         val inpPassword: EditText = root.findViewById(R.id.txtPassword)
 
         btnLogin.setOnClickListener {
-            Toast.makeText(requireContext(),
-                "EMAIL: ${inpEmail.text} SENHA: ${inpPassword.text}",
-                Toast.LENGTH_SHORT).show()
 
-            // --
-            SessionManager.getInstance(requireContext()).createLoginSession(
-                2, "mateus@testes.com"
+            val progressDialog = ProgressDialog(requireContext()).apply {
+                setMessage("")
+                setCancelable(false)
+                show()
+            }
+
+            val u = ApiWrapper.call<User>(
+                scope = viewLifecycleOwner.lifecycleScope,
+                apiCall = { ApiWrapper.tryLogin(inpEmail.text.toString(), inpPassword.text.toString()) },
+                onSuccess = { u ->
+                    progressDialog.dismiss()
+                    Log.d("Api", "Got user ${u.email} posts")
+
+                    // --
+                    SessionManager.getInstance(requireContext()).createLoginSession(
+                        u.id, u.email
+                    )
+
+                    sendUserToMain()
+                },
+                onError = { err ->
+                    progressDialog.dismiss()
+                    Toast.makeText(
+                        requireContext(),
+                        "Erro: ${err.error}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    Log.e("ApiError", err.error)
+                }
             )
-
-            sendUserToMain()
         }
+
         btnToRegister.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_registerFragment)
         }

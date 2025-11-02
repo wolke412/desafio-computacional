@@ -25,10 +25,9 @@ import java.io.ByteArrayOutputStream
 
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.dc.entities.PostInteraction
-import com.dc.entities.PostInteractionType
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.Serializable
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 object ApiWrapper {
 
@@ -74,11 +73,18 @@ object ApiWrapper {
         onError: (error: ApiError) -> Unit
     ) {
         scope.launch(Dispatchers.IO) {
-            val response = apiCall()
-            withContext(Dispatchers.Main) {
-                when (response) {
-                    is ApiResponse.Success -> onSuccess(response.data)
-                    is ApiResponse.Error -> onError(response.error)
+            try {
+                val response = apiCall()
+                withContext(Dispatchers.Main) {
+                    when (response) {
+                        is ApiResponse.Success -> onSuccess(response.data)
+                        is ApiResponse.Error -> onError(response.error)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("ApiWrapper", "API call failed with exception: ${e.message}", e)
+                withContext(Dispatchers.Main) {
+                    onError(ApiError("Connection failed: ${e.message}"))
                 }
             }
         }
@@ -102,11 +108,24 @@ object ApiWrapper {
     }
 
     suspend fun createUser(user: User): User {
-        return client.post("$BASE_URL/user/create") {
+        return client.post("$BASE_URL/users/create") {
             contentType(ContentType.Application.Json)
             setBody(user)
 //            jwtToken?.let { header("Authorization", "Bearer $it") }
         }.body()
+    }
+
+    @Serializable
+    private data class LoginBody(val email: String, val password: String)
+
+    suspend fun tryLogin(email: String, password: String): ApiResponse<User> {
+        val res = client.post("$BASE_URL/users/login") {
+            contentType(ContentType.Application.Json)
+            setBody(LoginBody(email, password))
+//            jwtToken?.let { header("Authorization", "Bearer $it") }
+        }
+
+        return getResponse(res)
     }
 
     /**

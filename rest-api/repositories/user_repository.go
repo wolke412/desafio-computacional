@@ -96,7 +96,10 @@ func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*models
 
 func (r *UserRepository) FindByEmailAndPassword(ctx context.Context, email string, password string) (*models.User, error) {
 
-	query := `SELECT * FROM users WHERE email = $1 AND password = $2`
+	query := `SELECT 
+		id_user, user_name, email, password_hash, cpf, id_bairro, type,
+		created_at
+	FROM users WHERE email = $1 AND password_hash = $2`
 
 	var user models.User
 	err := r.DB.QueryRowContext(ctx, query, email, password).Scan(
@@ -106,6 +109,7 @@ func (r *UserRepository) FindByEmailAndPassword(ctx context.Context, email strin
 		&user.Password,
 		&user.CPF,
 		&user.BairroID,
+		&user.Type,
 		&user.CreatedAt,
 	)
 	if err != nil {

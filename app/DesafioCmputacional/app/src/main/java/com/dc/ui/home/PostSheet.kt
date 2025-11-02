@@ -29,6 +29,7 @@ import okhttp3.OkHttpClient
 import kotlinx.coroutines.launch
 import androidx.lifecycle.lifecycleScope
 import com.dc.api.isSuccess
+import com.dc.utils.SessionManager
 
 class PostSheet(private var post: Post, private var interaction: PostInteraction) : Drawer() {
     private lateinit var titleView: TextView
@@ -245,9 +246,14 @@ class PostSheet(private var post: Post, private var interaction: PostInteraction
 
 
             // Create the interaction object to send to the API
+            val id_user = SessionManager.getInstance(requireContext()).getUserId()
+            if (id_user == -1) {
+                Log.e("PostSheet", "User ID not found")
+                return@setOnClickListener
+            }
             val newInteraction = PostInteraction(
                 id_post = post.id_post,
-                id_user = 2,
+                id_user = id_user,
                 interaction = interactionType,
             )
 
@@ -260,7 +266,7 @@ class PostSheet(private var post: Post, private var interaction: PostInteraction
 
                     val response = ApiWrapper.postInteraction(
                         interaction.id_post,
-                        2,
+                        interaction.id_user,
                         newInteraction.interaction
                     )
 

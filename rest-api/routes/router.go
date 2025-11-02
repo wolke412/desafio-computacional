@@ -46,8 +46,6 @@ func SetupRoutes(app *fiber.App, db *sql.DB) {
 		posts.Post("/", postHandler.CreatePost)
 		posts.Post("/:post_id/upload-image", postHandler.UploadImageHandler)
 		posts.Post("/:post_id/interaction", postHandler.PostInteraction)
-
-		
 	}
 
 	prefeitura := public.Group("/prefeitura")

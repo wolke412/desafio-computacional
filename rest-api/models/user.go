@@ -15,13 +15,13 @@ const (
 // -
 
 type User struct {
-	ID         int64    
+	ID         int64   `json:"id"`
 
 	BairroID int64 
 
-	Name       string   
+	Name       string   `json:"name"`
 
-	Email      string  
+	Email      string  `json:"email"`
 	CPF string  
 	Password   string 
 	
