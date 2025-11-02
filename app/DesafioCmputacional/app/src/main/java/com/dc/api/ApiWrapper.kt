@@ -204,11 +204,14 @@ object ApiWrapper {
      * @param userId The ID of the user.
      * @return An ApiResponse indicating success or failure.
      */
+    @Serializable
+    data class SubjectUser(val id_user: Int)
+
     suspend fun fetchPostInteraction(postId: Int, userId: Int): ApiResponse<PostInteraction> {
         val res = client.get("$BASE_URL/posts/$postId/interaction") {
             contentType(ContentType.Application.Json)
             // jwtToken?.let { header("Authorization", "Bearer $it") }
-            setBody(mapOf("id_user" to userId))
+            setBody(SubjectUser(userId))
         }
 
         return getResponse(res)

@@ -105,10 +105,10 @@ func (h *PostHandler) PostInteraction(c *fiber.Ctx) error {
 
 	fmt.Printf("\npost inter (%d):\n %+v \n\n", post_id_int, postInter)
 	
-
 	err = h.Service.PlaceInteraction(c.Context(), &postInter)
 
 	if err != nil {
+		slog.Error("Error in placing interation", "err", err.Error())
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})

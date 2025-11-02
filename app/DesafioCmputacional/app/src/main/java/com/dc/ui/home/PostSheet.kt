@@ -11,6 +11,7 @@ import android.widget.ImageView
 import coil.imageLoader
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.res.integerResource
 import androidx.core.content.ContextCompat
@@ -251,6 +252,8 @@ class PostSheet(private var post: Post, private var interaction: PostInteraction
                 Log.e("PostSheet", "User ID not found")
                 return@setOnClickListener
             }
+            Log.d("PostSheet", "User ID is ${id_user}")
+            Log.d("PostSheet", "Post ID is ${post.id_post}")
             val newInteraction = PostInteraction(
                 id_post = post.id_post,
                 id_user = id_user,
@@ -265,24 +268,25 @@ class PostSheet(private var post: Post, private var interaction: PostInteraction
                     }
 
                     val response = ApiWrapper.postInteraction(
-                        interaction.id_post,
-                        interaction.id_user,
+                        newInteraction.id_post,
+                        newInteraction.id_user,
                         newInteraction.interaction
                     )
 
                     if (response.isSuccess) {
                         Log.d("PostSheet", "Interaction registered: $interactionType")
-                        // Optionally, you could update the UI or dismiss the sheet
                         dismiss()
                     } else {
                         Log.e("PostSheet", "Failed to register interaction:")
-                        // You could show an error message to the user here
+                        Toast.makeText(
+                            requireContext(),
+                            "Falha ao registrar interação.",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 } catch (e: Exception) {
                     Log.e("PostSheet", "Exception during interaction registration", e)
-                    // Handle exceptions, e.g., network errors
                 } finally {
-                    // Re-enable buttons after the request is complete, regardless of success or failure
                     button.isEnabled = true
                     otherButton.isEnabled = true
                 }
