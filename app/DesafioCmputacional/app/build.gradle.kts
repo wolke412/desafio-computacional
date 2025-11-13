@@ -55,6 +55,7 @@ dependencies {
     // Coil IMG loader:w
     implementation("io.coil-kt:coil:2.7.0") // for image loading
 
+
     // OSMDroid
     implementation("org.osmdroid:osmdroid-android:6.1.6")
     implementation("org.osmdroid:osmdroid-wms:6.1.6")

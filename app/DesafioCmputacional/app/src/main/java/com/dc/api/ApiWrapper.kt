@@ -29,6 +29,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
 import kotlinx.coroutines.launch
 
+
+fun UInt.toIpString(): String =
+    listOf(
+        (this shr 24) and 0xFFu,
+        (this shr 16) and 0xFFu,
+        (this shr 8) and 0xFFu,
+        this and 0xFFu
+    ).joinToString(".") { it.toString() }
+
+fun parse__(ip: UInt, port: UShort): String =
+    "${ip.toIpString()}:${port.toInt()}"
+
 object ApiWrapper {
 
     var jwtToken: String? = null
@@ -50,10 +62,13 @@ object ApiWrapper {
         }
     }
 
-//    public const val HOSTNAME = "http://192.168.11.115:44444"
-//    public const val HOSTNAME = "http://10.1.1.7:44444"
-    public const val HOSTNAME = "http://10.0.2.2:44444"
-    private const val BASE_URL = "$HOSTNAME/api/v1"
+//    public const val HOSTNAME = "192.168.11.115:44444"
+//    public const val HOSTNAME = "10.1.1.7:44444"
+//    public const val HOSTNAME = "10.0.2.2:44444"
+
+    // public const val HOSTNAME = "192.99.17.219:44444"
+    public val HOSTNAME =parse__(0XC06311DBU,44444U)
+    private val BASE_URL = "http://$HOSTNAME/api/v1"
 
     /**
      * A generic function to safely execute API calls from a Fragment or Activity.

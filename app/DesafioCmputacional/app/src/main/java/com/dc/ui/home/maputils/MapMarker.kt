@@ -59,17 +59,9 @@ class MapMarker(
                 true
             }
 
-            val context = mapView.context
-            val icon = when (post.post_type) {
-                PostType.FALTA_AGUA -> R.drawable.alert
-                PostType.FALTA_LUZ -> R.drawable.alert
-                PostType.BURACO -> R.drawable.alert
-                else -> R.drawable.construction
-            }
-
             val drawable: Drawable? = ContextCompat.getDrawable(
-                context,
-               icon
+                mapView.context,
+                getIcon(post)
             )
 
             val lbl = createLabeledBitmap(
@@ -129,9 +121,21 @@ class MapMarker(
         mapView.invalidate()
     }
 
+    private fun getIcon(post: Post): Int {
+        val icon = when (post.post_type) {
+            PostType.FALTA_AGUA -> R.drawable.droplet_off
+            PostType.FALTA_LUZ -> R.drawable.bolt_off
+            PostType.BURACO -> R.drawable.alert
+            else -> R.drawable.construction
+        }
+        return icon
+    }
     private fun redrawIcon(mapView: MapView) {
         osmdroidMarker?.let { marker ->
-            val drawable: Drawable? = ContextCompat.getDrawable(mapView.context, R.drawable.alert)
+            val drawable: Drawable? = ContextCompat.getDrawable(
+                mapView.context,
+                getIcon(post)
+            )
             drawable?.let {
                 marker.icon = createLabeledBitmap(it, post.title, mapView.zoomLevel)
                 mapView.invalidate()
@@ -176,13 +180,13 @@ class MapMarker(
         val canvas = Canvas(combined)
 
 
+        val bgColor = when(post.post_type) {
+            PostType.FALTA_AGUA -> Color.rgb(93, 199, 232)
+            PostType.FALTA_LUZ -> Color.rgb(212, 224, 99)
+            PostType.BURACO -> Color.rgb(255, 161, 79)
+            else -> Color.WHITE
+        }
         val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            val bgColor = when(post.post_type) {
-                PostType.FALTA_AGUA -> Color.rgb(255, 245, 238)
-                PostType.FALTA_LUZ -> Color.rgb(255, 236, 217)
-                PostType.BURACO -> Color.rgb(255, 224, 192)
-                else -> Color.WHITE
-            }
             color = bgColor
             style = Paint.Style.FILL
         }
@@ -224,7 +228,7 @@ class MapMarker(
             (comb_h-y_offset/2).toFloat(),
             radius + shadowSpread,
             Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = 0x60C06000
+                color = 0x60000000 or bgColor
                 style = Paint.Style.FILL
             }
         )
@@ -234,7 +238,8 @@ class MapMarker(
             (comb_h-y_offset/2).toFloat(),
             radius,
             Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                color = 0x7FC06000
+                // color = 0x7FC06000
+                color = 0x7F000000 or bgColor
                 style = Paint.Style.FILL
             }
         )

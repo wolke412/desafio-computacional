@@ -1,14 +1,18 @@
 package com.dc.ui.posts
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.ProgressDialog
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -29,7 +33,10 @@ import com.dc.R
 import com.dc.api.ApiWrapper
 import com.dc.api.getContent
 import com.dc.api.getError
+import com.dc.api.isError
 import com.dc.api.isSuccess
+import com.dc.coordinates.LatLon
+import com.dc.coordinates.ParobePerimetro
 import com.dc.entities.E_CreatePost
 import com.dc.entities.PostType
 import com.dc.entities.toCreatePostBody
@@ -41,6 +48,7 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.IMyLocationConsumer
 import org.osmdroid.views.overlay.mylocation.IMyLocationProvider
@@ -122,6 +130,9 @@ class CreatePostFragment : Fragment() {
 
         mapView = view.findViewById(R.id.map)
 
+
+
+
         setupMap()
         requestLocationPermission()
 
@@ -162,7 +173,10 @@ class CreatePostFragment : Fragment() {
 
                         if ( postEntity.image != null ) {
                             lifecycleScope.launch(Dispatchers.IO) {
-                                ApiWrapper.uploadPostImage(postId, postEntity.image )
+                                val imageres = ApiWrapper.uploadPostImage(postId, postEntity.image )
+                                if (imageres.isError) {
+                                    Log.e("CreatePostFragment", "Error uploading image: ${imageres.getError()?.error}")
+                                }
                                 withContext(Dispatchers.Main) {
                                     Toast.makeText(requireContext(), "Postagem criada com sucesso!", Toast.LENGTH_LONG).show()
                                     parentFragmentManager.popBackStack()
@@ -248,6 +262,7 @@ class CreatePostFragment : Fragment() {
         )
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun setupMap() {
 
         mapView.controller.setZoom(18.0)
@@ -267,9 +282,38 @@ class CreatePostFragment : Fragment() {
                 return false
             }
         }
+
+        mapView.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> v.parent.requestDisallowInterceptTouchEvent(true)
+                //
+                MotionEvent.ACTION_UP,
+                MotionEvent.ACTION_CANCEL -> v.parent.requestDisallowInterceptTouchEvent(false)
+            }
+            v.onTouchEvent(event)
+//           false
+        }
+
+        drawPerimeter(ParobePerimetro.coordinates, Color.RED)
+
         val mapEventsOverlay = MapEventsOverlay(mapEventsReceiver)
-        mapView.overlays.add(0, mapEventsOverlay)
+        mapView.overlays.add( mapEventsOverlay)
     }
+
+    private fun drawPerimeter(llpoints: List<LatLon>, themeColor: Int ) {
+        val geoPoints = llpoints
+            .map { GeoPoint(it.lat, it.lon) }
+
+        val polygon = Polygon().apply {
+            points = geoPoints
+            strokeColor = (themeColor)
+            strokeWidth = 12f
+        }
+
+        mapView!!.overlays.add(polygon)
+        mapView!!.invalidate()
+    }
+
 
     private fun addMarker(geoPoint: GeoPoint) {
         // Clear previous markers

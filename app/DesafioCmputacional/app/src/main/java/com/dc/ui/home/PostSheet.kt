@@ -137,7 +137,7 @@ class PostSheet(private var post: Post, private var interaction: PostInteraction
             )
             imgView.adjustViewBounds = true
 
-            var imageUrl = ApiWrapper.HOSTNAME + url
+            var imageUrl = "http://"+ ApiWrapper.HOSTNAME + url
             Log.d("PostSheet" , imageUrl )
 
 
